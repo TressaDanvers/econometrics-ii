@@ -10,6 +10,6 @@ Answer the following questions (you may have to read the paper in order to answe
    1. What do you think is the most plausible way to estimate this caual effect with the available data? Estimate the causal effect this way. Things to think about might include:
    2. What functional form to use
    3. Which observations should you include or not include?
-4. Which control variables could y ou include?
+4. Which control variables could you include?
 5. Is your estimate of the causal effect large? Can you put it in context?
 6. Investigate whether your estimate in question 4 is robust to other plausible specifications. Summarize your robustness check with a plot.

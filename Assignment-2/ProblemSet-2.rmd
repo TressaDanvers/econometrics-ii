@@ -5,17 +5,15 @@ output: pdf_document
 
 ```{r, eval=TRUE, echo=FALSE, message=FALSE}
 knitr::opts_chunk$set(
-eval=TRUE,
-echo=FALSE,
-message=FALSE,
-warning=FALSE
+  eval=TRUE,
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE
 )
 ```
 
 ```{r, code=readLines("ProblemSet-2.R")}
 ```
-
-Note: The dataset is difficult to parse, there isn't a convenient interpretation on hand for exactly what each value means. I've chosen to only use the value of `wjtest01` for this assignment because I do not know which wjtest represents which actual test, and the results from a cursory glance show that looking at one test for the questions should be enough.
 
 (1) What is the research question? What causal effect are the authors attempting to estimate?
 
@@ -41,22 +39,50 @@ I'll just be looking at the 3-month margin for now.
 
 The below stargazer table on the next page includes some variables which may be included. many of which are included to take things out of the error term, for the purpose of accuracy. Race, sex, and free-lunches are such terms.
 
-There are 3 terms which I believe are most important here: `age`, `I(age>=0)`, and their interaction.
+There are 3 terms which I believe are most important here: `age`, `I(age<0)`, and their interaction.
+
+The functional form is as follows:
+$$wjtest \sim \beta_0 + \beta_1 age + \beta_2 (age<0)? + \beta_3 age \cdot (age<0)? + \dots$$
+$$\dots \beta_4 white + \beta_5 black + \beta_6 hispanic + \beta_7 freelunch + \beta_8 female + \varepsilon$$
 
 Below that is a scatter plot including two linear models, one after the cutoff and one before. This illustrates the effect trying to be captured by the researchers.
+
+(4) Which control variables could you include?
+
+See (3).
+
+(5) Is your estimate of the causal effect large? Can you put it in context?
+
+The estimate of the causal effect as given by this model is that people who have not gone through pre-k yet score an average of `r no_prek_value` points, as opposed to those who have gone through pre-k scoring an average `r prek_value` points. This is a difference of `r no_prek_difference` points.
+
+This is, in my opinion, large. Previous skepticism about interpretation still applies.
+
+(6) Investigate whether your estimate in question 4 is robust to other plausible specifications. Summarize your robustness check with a plot.
+
+It passes robustness. See Figure-2.
+
+The possible values for the causal effect given by the robustness check are:
+$$\left[ `r summary_estimates` \right]$$
+
+While these do vary, they all show a clear and large effect on points. The model is robust.
 
 ```{r, results="asis"}
 prek_model |>
   stargazer(type="latex", header=FALSE)
 ```
 
-```{r, results="asis", out.width="75%", fig.align="center", fig.cap="..."}
+```{r, out.width="75%", fig.align="center", fig.cap="a scatterplot showing the jump at 0 for the cutoff date."}
 prek_3months |>
-  ggplot() +
-  geom_point(aes(x=age, y=wjtest01)) +
-  geom_smooth(data=prek_3months |> filter(age<=0),
-              method="lm", aes(x=age, y=wjtest01)) +
-  geom_smooth(data=prek_3months |> filter(age>=0),
-              method="lm", aes(x=age, y=wjtest01)) +
+  ggplot(aes(x=age, y=wjtest01)) +
+  geom_point() +
+  geom_smooth(method="lm", formula="y~I(x<0)+x+x*I(x<0)") +
   geom_vline(xintercept=0)
+```
+
+```{r, out.width="75%", fig.align="center", fig.cap="several scatterplots showing a robustness check."}
+summary_table |>
+  ggplot(aes(x=age,y=wjtest01)) +
+  geom_point() +
+  geom_smooth(method="lm", formula="y~I(x<0)+x+x*I(x<0)") +
+  facet_grid(rows = vars(window))
 ```
