@@ -1,0 +1,62 @@
+---
+title: "Problem Set 2"
+output: pdf_document
+---
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(
+eval=TRUE,
+echo=FALSE,
+message=FALSE,
+warning=FALSE
+)
+```
+
+```{r, code=readLines("ProblemSet-2.R")}
+```
+
+Note: The dataset is difficult to parse, there isn't a convenient interpretation on hand for exactly what each value means. I've chosen to only use the value of `wjtest01` for this assignment because I do not know which wjtest represents which actual test, and the results from a cursory glance show that looking at one test for the questions should be enough.
+
+(1) What is the research question? What causal effect are the authors attempting to estimate?
+
+This research is attempting to answer the question of what causal effect there may be of prekindergarten programs on student performance. Or, in the paper's words: "What can we expect from prekindergarten programs?"
+
+(2) What feature of the data allow them to estimate this causal effect? How do they go about doing it?
+
+They have two groups of students, who are roughly the same age but due to the yearly school entry cutoff are a school-year apart. They are all given the same test at the beginning of pre-k and at the beginning of kindergarten.
+
+\<methodology-rant>
+
+I, however, am going to express a small amount of skepticism at this methodology.
+
+They shouldn't have had the year-ahead group to take the test before pre-k, as well as before kindergarten. Otherwise, how do they account for trial-and-error? A student who has a decent memory, and saw what things they got wrong the first time, may vastly improve as compared to a student who didn't get the opportunity to do that in the first place.
+
+Essentially, how do they isolate the effects of pre-k from the effects of good feedback on completed work?
+
+\</methodology-rant>
+
+(3) Produce a plot that shows graphically how the authors estimate this causal effect.
+
+I'll just be looking at the 3-month margin for now.
+
+The below stargazer table on the next page includes some variables which may be included. many of which are included to take things out of the error term, for the purpose of accuracy. Race, sex, and free-lunches are such terms.
+
+There are 3 terms which I believe are most important here: `age`, `I(age>=0)`, and their interaction.
+
+Below that is a scatter plot including two linear models, one after the cutoff and one before. This illustrates the effect trying to be captured by the researchers.
+
+```{r, results="asis"}
+prek_model |>
+  stargazer(type="latex", header=FALSE)
+```
+
+```{r, results="asis", out.width="75%", fig.align="center", fig.cap="..."}
+prek_3months |>
+  ggplot() +
+  geom_point(aes(x=age, y=wjtest01)) +
+  geom_smooth(data=prek_3months |> filter(age<=0),
+              method="lm", aes(x=age, y=wjtest01)) +
+  geom_smooth(data=prek_3months |> filter(age>=0),
+              method="lm", aes(x=age, y=wjtest01)) +
+  geom_vline(xintercept=0)
+```
