@@ -1,0 +1,117 @@
+---
+title: "Assignment-3"
+output: pdf_document
+---
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  eval=TRUE,
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE,
+  cache=TRUE
+)
+
+library(tidyverse)
+library(stargazer)
+library(AER)
+library(plm)
+theme_set(theme_bw())
+```
+
+```{r, code=readLines("Assignment-3-Data.R")}
+```
+
+1. Estimate an OLS model that estimates the effect of years of schooling on crime (as measured by being in prison). Include state and year fixed effects (i.e. as.factor(state), etc...).
+
+```{r, code=readLines("Assignment-3-Q1.R")}
+```
+
+```{r, results="asis"}
+ols_model |>
+  stargazer(title= "OLS Model",
+            dep.var.labels= "Prison Sentence",
+            covariate.labels= "Education",
+            keep= "educ",
+            type= "latex",
+            header= FALSE)
+```
+
+2. Explain why you cannot interpret the coefficient on educ as the causal effect of education on crime.
+
+It may be that the effects of education on crime rates differs by state and/or year. It would be incorrect to assume that the interpretation above definitely applies equally to all states.
+
+3. Explain why the compulsory years of schooling is plausibly a good instrument to solve this problem. Discuss this with reference to the inclusion and exclusion conditions.
+
+"Years of compulsory schooling" could very well be part of the error term which effects this exact issue. it both causes education, and it may be the case that states which have the kind of political climate to enforce schooling, also have systematically different laws for sentencing. It is also the case that "Years of compulsory schooling" probably has no correlation with the error term (given its exclusion from said error term).
+
+4. Estimate an instrumental variables model that estimates the effect of years of schooling on crime. Interpret the results.
+
+```{r, code=readLines("Assignment-3-Q4.R")}
+```
+
+```{r, results="asis"}
+inst_model |>
+  stargazer(title= "Instrumental Variable Model",
+            dep.var.labels= "Prison Sentence",
+            covariate.labels= "Education",
+            keep= "educ",
+            type= "latex",
+            header= FALSE)
+```
+
+See Table 2.
+
+Interpretation: Education *does* have an effect on crime. The effect is inversely proportional.
+
+5. Provide a plot and a regression estimation that establishes that the instruments satisfy the inclusion condition.
+
+
+```{r, code=readLines("Assignment-3-Q5.R")}
+```
+
+I generally think it's probably for the best to consider each group of compulsory education, 4 years, 6 years, etc... to be a categorical variable. This is because, after reviewing the data, each group seems to act differently, with no clear pattern between them, but they all have a statistically significant non-minor effect on education
+
+See Figure 1. and Table 3.
+(Only the first 100,000 observations are used in generating the plot, otherwise it drastically bloats the pdf file size and load times. It's insane to me that's how ggplot works, instead of just baking a png or svg, but it is what it is. To see the "true" figure one, compile this document removing the line "`head(100000) |>`" in the Figure 1. block.)
+
+```{r, fig.cap="Years of Education by Compulsory Education"}
+educationCrime |>
+  head(100000) |>
+  ggplot(aes(x=as.factor(req_sch),y=educ)) +
+  geom_boxplot() +
+  xlab("Compulsory Education") +
+  ylab("Education")
+```
+
+```{r, results="asis"}
+demonstration_model |>
+  stargazer(title= "Demonstration of Correlation",
+            dep.var.labels= "Education",
+            covariate.labels= c(
+              "Compulsory Education: 4 Years",
+              "Compulsory Education: 6 Years",
+              "Compulsory Education: 7 Years",
+              "Compulsory Education: 8 Years",
+              "Compulsory Education: 9 Years",
+              "Compulsory Education: 10 Years",
+              "Compulsory Education: 12 Years"),
+            keep= "req_sch",
+            type= "latex",
+            header= FALSE)
+```
+
+6. Do an over-identification test and interpret the results.
+
+```{r, code=readLines("Assignment-3-Q6.R")}
+```
+
+```{r, results="asis"}
+pl_model |>
+  stargazer(title= "Over-Identification Test",
+            dep.var.labels= "Prison Sentence",
+            covariate.labels= "Education",
+            keep= "educ",
+            type= "latex",
+            header= FALSE)
+```
