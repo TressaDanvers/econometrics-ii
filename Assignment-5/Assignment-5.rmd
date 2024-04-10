@@ -1,0 +1,65 @@
+---
+title: "Assignment-4"
+output: pdf_document
+---
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  eval=TRUE,
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE
+)
+
+library(tidyverse)
+library(tseries)
+library(stargazer)
+library(plm)
+library(forecast)
+theme_set(theme_bw())
+```
+
+```{r, code=readLines("Assignment-5-Data.R")}
+```
+
+I went with GPD. Here's the data:
+
+```{r}
+gdp |> ggplot(aes(x=YEAR, y=GDP)) +
+  geom_line()
+```
+
+(You can literally *see* COVID-19 on this plot. Same with 2008.)
+
+The "unit of time" in this case is a quarter.
+
+### KPSS Test
+
+$`r kpss$statistic`$, we reject the null (the null being that "the GDP is stationary").
+
+$\neg ``\text{The GDP is stationary.}" \rightarrow ``\text{The GDP is non-stationary.}"$
+
+### Differencing
+
+```{r}
+gdp |> ggplot(aes(x=YEAR, y=dGDP)) +
+  geom_line()
+```
+
+To achieve this result, I had to run differencing twice. (See `Assignment-4-Data.R`.)
+
+### 2${}^\text{nd}$ KPSS Test
+
+$`r kpss2$statistic`$, we do not reject the null.
+
+### Some ARIMA Forecasts
+
+```{r, out.width="50%"}
+for (model in models) plot(forecast(model,h=6))
+```
+
+### Best ARIMA Forecast (According to AIC)
+
+```{r}
+plot(forecast(best.model,h=6))
+```
