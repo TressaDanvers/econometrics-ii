@@ -26,5 +26,5 @@ for (i in 1:3)
       arima(order=c(i,1,j))
 
 best.model <- models[[1]]
-for (model in models) if (model$aic > best.model$aic) best.model <- model
+for (model in models) if (model$aic < best.model$aic) best.model <- model
 best.aic <- models |> map(\(x) x$aic) |> unlist() |> max()
