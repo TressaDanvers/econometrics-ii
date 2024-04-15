@@ -1,0 +1,27 @@
+---
+title: "In-Class-Exercise-1"
+output: pdf_document
+---
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  eval=TRUE,
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE
+)
+
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+```{r, code=readLines("In-Class-Exercise-1-Data.R")}
+```
+
+```{r}
+data |>
+  ggplot(aes(x=date)) +
+  geom_line(aes(y=MORTGAGE30US,color="30-year mortgage")) +
+  geom_line(aes(y=CPIAUCSL,color="Fed. funds")) +
+  geom_line(aes(y=FEDFUNDS,color="Inflation"))
+```
