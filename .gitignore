@@ -2,3 +2,4 @@
 data/
 *_cache/
 *_files/
+*.~lock*
