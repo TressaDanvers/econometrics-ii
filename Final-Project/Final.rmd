@@ -1,0 +1,54 @@
+---
+output: pdf_document
+---
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  eval=TRUE,
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE
+)
+
+library(tidyverse)
+library(tseries)
+library(stargazer)
+library(plm)
+theme_set(theme_bw())
+```
+
+```{r, code=readLines("Final-Data.R")}
+```
+
+Poverty headcount ratio is the proportion of the population $(\text{poverty}:\text{non-poverty})$ who is below a certain threshold. For example, if a person makes a real wage of less than $6.85 a day, they are below the $6.85 poverty threshold and are counted on that side of the proportion.
+
+I have also manually filtered this data removing countries with problematically few observations. (Some countries, even after selecting the top top countries in terms of HDI)
+
+The 22 countries which made the cut include: `r DATA$COUNTRY |> unique() |> head(21)`, and the United States.
+
+Here's 5 of those countries plotted over time:
+
+```{r}
+DATA |>
+	filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
+	ggplot(aes(x=YEAR,y=PHCR.6.85,color=COUNTRY)) +
+	geom_line() +
+	xlab("Year") +
+	ylab("Poverty Headcount Ratio (6.85 USD) (%)")
+```
+
+The model:
+
+```{r, results="asis"}
+stargazer(MODEL.AD.M.2.15, MODEL.AD.F.2.15, MODEL.S.2.15, type="latex", header=FALSE)
+```
+
+```{r, results="asis"}
+stargazer(MODEL.AD.M.3.65, MODEL.AD.F.3.65, MODEL.S.3.65, type="latex", header=FALSE)
+```
+
+```{r, results="asis"}
+stargazer(MODEL.AD.M.6.85, MODEL.AD.F.6.85, MODEL.S.6.85, type="latex", header=FALSE)
+```
+
+
