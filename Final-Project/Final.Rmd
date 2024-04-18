@@ -1,0 +1,88 @@
+---
+output: pdf_document
+---
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  eval=TRUE,
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE
+)
+
+library(tidyverse)
+library(tseries)
+library(stargazer)
+library(plm)
+theme_set(theme_bw())
+```
+
+```{r, code=readLines("Final-Data.R")}
+```
+
+Poverty headcount ratio is the proportion of the population $(\text{poverty}:\text{non-poverty})$ who is below a certain threshold. For example, if a person makes a real wage of less than $6.85 a day, they are below the $6.85 poverty threshold and are counted on that side of the proportion.
+
+I have also manually filtered this data removing countries with problematically few observations. (Some countries, even after selecting the top top countries in terms of HDI)
+
+The 22 countries which made the cut include: `r DATA$COUNTRY |> unique() |> head(21)`, and the United States.
+
+Here's 5 of those countries plotted over time:
+
+```{r}
+DATA |>
+  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
+  ggplot(aes(x=YEAR,y=PHCR.6.85,color=COUNTRY)) +
+  geom_line() +
+  xlab("Year") +
+  ylab("Poverty Headcount Ratio (6.85 USD) (%)")
+```
+
+\newpage
+
+Here are the mortality rates for those same countries:
+
+```{r, out.width="90%"}
+DATA |>
+  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
+  ggplot(aes(x=YEAR,y=MR.AD.F,color=COUNTRY)) +
+  geom_line() +
+  xlab("Year") +
+  ylab("Mortality Rate (Women)")
+```
+
+```{r, out.width="90%"}
+DATA |>
+  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
+  ggplot(aes(x=YEAR,y=MR.AD.M,color=COUNTRY)) +
+  geom_line() +
+  xlab("Year") +
+  ylab("Mortality Rate (Men)")
+```
+
+```{r, out.width="90%"}
+DATA |>
+  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
+  ggplot(aes(x=YEAR,y=MR.S,color=COUNTRY)) +
+  geom_line() +
+  xlab("Year") +
+  ylab("Mortality Rate (Suicide)")
+```
+
+\newpage
+
+```{r, results="asis"}
+stargazer(MODEL.B1, MODEL.B2, MODEL.B3, type="latex", header=FALSE)
+```
+
+\newpage
+
+
+```{r, results="asis"}
+stargazer(MODEL.C1, MODEL.C2, MODEL.C3, type="latex", header=FALSE)
+```
+
+\newpage
+
+```{r, results="asis"}
+stargazer(MODEL.D1, MODEL.D2, MODEL.D3, type="latex", header=FALSE)
+```

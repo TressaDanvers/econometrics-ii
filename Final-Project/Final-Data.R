@@ -43,23 +43,38 @@ DATA <- read.csv("data-sync/world-bank-data.csv") |>
 	na.omit() |>
 	filter(COUNTRY %in% (COUNTRY |> unique() |> head(25)))
 
-MODEL.AD.M.2.15 <- plm(MR.AD.M ~ PHCR.2.15, data=DATA,
-											 index=c("COUNTRY", "YEAR"), model="pooling")
-MODEL.AD.F.2.15 <- plm(MR.AD.F ~ PHCR.2.15, data=DATA,
-											 index=c("COUNTRY", "YEAR"), model="pooling")
-MODEL.S.2.15 <- plm(MR.S ~ PHCR.2.15, data=DATA,
-										index=c("COUNTRY", "YEAR"), model="pooling")
+M.DATA <- DATA |>
+	(\(x) x[order(x$YEAR),])() |>
+	group_by(COUNTRY) |>
+	mutate(PHCR.6.85.LAG= c(NA, head(PHCR.6.85, -1))) |>
+	mutate(PHCR.3.65.LAG= c(NA, head(PHCR.3.65, -1))) |>
+	mutate(PHCR.2.15.LAG= c(NA, head(PHCR.2.15, -1))) |>
+	ungroup()
 
-MODEL.AD.M.3.65 <- plm(MR.AD.M ~ PHCR.3.65, data=DATA,
-											 index=c("COUNTRY", "YEAR"), model="pooling")
-MODEL.AD.F.3.65 <- plm(MR.AD.F ~ PHCR.3.65, data=DATA,
-											 index=c("COUNTRY", "YEAR"), model="pooling")
-MODEL.S.3.65 <- plm(MR.S ~ PHCR.3.65, data=DATA,
-										index=c("COUNTRY", "YEAR"), model="pooling")
 
-MODEL.AD.M.6.85 <- plm(MR.AD.M ~ PHCR.6.85, data=DATA,
-											 index=c("COUNTRY", "YEAR"), model="pooling")
-MODEL.AD.F.6.85 <- plm(MR.AD.F ~ PHCR.6.85, data=DATA,
-											 index=c("COUNTRY", "YEAR"), model="pooling")
-MODEL.S.6.85 <- plm(MR.S ~ PHCR.6.85, data=DATA,
-										index=c("COUNTRY", "YEAR"), model="pooling")
+MODEL.A1 <- lm(MR.AD.F ~ PHCR.6.85, data=M.DATA)
+MODEL.A2 <- lm(MR.AD.M ~ PHCR.6.85, data=M.DATA)
+MODEL.A3 <- lm(MR.S ~ PHCR.6.85, data=M.DATA)
+
+MODEL.B1 <- plm(MR.AD.F ~ PHCR.6.85, data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+MODEL.B2 <- plm(MR.AD.M ~ PHCR.6.85, data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+MODEL.B3 <- plm(MR.S ~ PHCR.6.85, data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+
+MODEL.C1 <- plm(MR.AD.F ~ PHCR.6.85 + PHCR.6.85.LAG, data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+MODEL.C2 <- plm(MR.AD.M ~ PHCR.6.85 + PHCR.6.85.LAG, data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+MODEL.C3 <- plm(MR.S ~ PHCR.6.85 + PHCR.6.85.LAG, data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+
+MODEL.D1 <- plm(MR.AD.F ~ PHCR.6.85 + PHCR.6.85.LAG
+                        + PHCR.3.65 + PHCR.3.65.LAG
+                        + PHCR.2.15 + PHCR.2.15.LAG,
+                data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+
+MODEL.D2 <- plm(MR.AD.M ~ PHCR.6.85 + PHCR.6.85.LAG
+                        + PHCR.3.65 + PHCR.3.65.LAG
+                        + PHCR.2.15 + PHCR.2.15.LAG,
+                data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
+
+MODEL.D3 <- plm(MR.S ~ PHCR.6.85 + PHCR.6.85.LAG
+                     + PHCR.3.65 + PHCR.3.65.LAG
+                     + PHCR.2.15 + PHCR.2.15.LAG,
+                data=M.DATA, index=c("COUNTRY", "YEAR"), model="pooling")
