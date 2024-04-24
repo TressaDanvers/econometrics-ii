@@ -1,5 +1,7 @@
 ---
+title: "A Model for Mortality Rates by Poverty Headcount Ratio"
 output: pdf_document
+geometry: margin=3cm
 ---
 
 ```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
@@ -20,69 +22,98 @@ theme_set(theme_bw())
 ```{r, code=readLines("Final-Data.R")}
 ```
 
-Poverty headcount ratio is the proportion of the population $(\text{poverty}:\text{non-poverty})$ who is below a certain threshold. For example, if a person makes a real wage of less than $6.85 a day, they are below the $6.85 poverty threshold and are counted on that side of the proportion.
+# Abstract
 
-I have also manually filtered this data removing countries with problematically few observations. (Some countries, even after selecting the top top countries in terms of HDI)
+In this paper, I look at the effects of poverty on mortality rates. I construct a simple model which relies on a simplified time-series element. Data is gathered from the world bank dataset, and as such account for panel data by controlling for country and year fixed effects. The sparse nature of the dataset requires I limit my observations to 22 of the top countries by standard of living (as measured by HDI). My theoretical prediction is that poverty is proportional to mortality rates (given an error term). The alternative being that poverty is negatively proportional to, or unrelated to, mortality rates. The findings of this paper are not indicative that - at least in terms of absolute poverty rates - poverty may not be a good indicator of mortality rates.
 
-The 22 countries which made the cut include: `r DATA$COUNTRY |> unique() |> head(21)`, and the United States.
+# Literature Review
 
-Here's 5 of those countries plotted over time:
+The study titled *Cross-Temporal and Cross-National Poverty and Mortality Rates among Developed Countries* looks at the same kind of data as this paper, mortality and poverty by country by year for developed nations.
 
-```{r}
-DATA |>
-  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
-  ggplot(aes(x=YEAR,y=PHCR.6.85,color=COUNTRY)) +
-  geom_line() +
-  xlab("Year") +
-  ylab("Poverty Headcount Ratio (6.85 USD) (%)")
-```
+They stratified mortality rates by infants, children, working age adults, and also by gender. Their poverty rates were calculated using a low threshold, which was because it \``measures more severe poverty prevalence".
 
-\newpage
+Their measure of poverty was a relative one. The time period of study was 1980 to 2005 across 26 countries. They found that poverty, welfare regime, and mortality may be interrelated. They found that there is \``...support for the assumption that the prevalence of poverty is of importance." They found that the significance of this varies depending on what values are included in the model.
 
-Here are the mortality rates for those same countries:
+All-in-all this study supports the claim that poverty has a numerically positive effect on mortality rates.
 
-```{r, out.width="90%"}
-DATA |>
-  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
-  ggplot(aes(x=YEAR,y=MR.AD.F,color=COUNTRY)) +
-  geom_line() +
-  xlab("Year") +
-  ylab("Mortality Rate (Women)")
-```
+(citation 1)
 
-```{r, out.width="90%"}
-DATA |>
-  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
-  ggplot(aes(x=YEAR,y=MR.AD.M,color=COUNTRY)) +
-  geom_line() +
-  xlab("Year") +
-  ylab("Mortality Rate (Men)")
-```
+The study titled *Absolute or relative? A comparative analysis of the relationship between poverty and mortality* performed a similar analysis to *Cross-Temporal and Cross-National Poverty and Mortality Rates among Developed Countries*.
+
+They looked at a higher relative measure of poverty, and they also included an absolute measure of poverty. They again looked at adult, child, and infant mortality. They did not stratify by gender. The years included in their data were 1978 to 2010, making for 149 data points.
+
+The results of this study showed that while relative poverty was correlative with mortality rates, absolute measures of poverty were not. It validates the study *Cross-Temporal and Cross-National Poverty and Mortality Rates among Developed Countries* by confirming that even with a less-strict measure of relative poverty, poverty is still correlated with mortality rates.
+
+(citation 2)
+
+# Methods
+
+Poverty headcount ratio is the proportion of the population $(\text{poverty}:\text{non-poverty})$ who is below a certain threshold. For example, if a person makes a real wage of less than $6.85 a day, they are below the $6.85 poverty threshold and are counted on that side of the proportion. It is important to note that PHCR is an absolute measure of poverty, not a relative one. This will come up later.
+
+My data source is the World Bank (citation 3), and includes many countries and their indicators for poverty, healthcare, and other values, I have the data sorted by standard of living by country (HDI). I have manually filtered this data; removing countries with problematically few observations. (Some countries, even after selecting the top countries in terms of HDI)
+
+The 22 countries which made the cut include: `r DATA$COUNTRY |> unique() |> head(21)`, and the United States of America. The relevant years span from `r DATA$YEAR |> min()` to `r DATA$YEAR |> max()`. Some countries are missing some years in the data, though no fewer than 14 observations exist for any individual country.
 
 ```{r, out.width="90%"}
 DATA |>
-  filter(COUNTRY %in% (COUNTRY |> unique() |> head(5))) |>
-  ggplot(aes(x=YEAR,y=MR.S,color=COUNTRY)) +
-  geom_line() +
-  xlab("Year") +
-  ylab("Mortality Rate (Suicide)")
+	filter(COUNTRY %in% (COUNTRY |> unique() |> head(4))) |>
+	ggplot(aes(x=YEAR,y=PHCR.6.85,color=COUNTRY)) +
+	geom_line() +
+	labs(title="Figure 1: 4 Countries PHCR.6.85") +
+	xlab("Year") +
+	ylab("Poverty Headcount Ratio (6.85 USD) (%)")
+```
+
+```{r, out.width="90%"}
+DATA |>
+	filter(COUNTRY %in% (COUNTRY |> unique() |> head(4))) |>
+	ggplot(aes(x=YEAR,y=MR.AD.F,color=COUNTRY)) +
+	geom_line() +
+	labs(title="Figure 2: 4 Countries Mortality Rate (Women)") +
+	xlab("Year") +
+	ylab("Mortality Rate (Women)")
+```
+
+```{r, out.width="90%"}
+DATA |>
+	filter(COUNTRY %in% (COUNTRY |> unique() |> head(4))) |>
+	ggplot(aes(x=YEAR,y=MR.AD.M,color=COUNTRY)) +
+	geom_line() +
+	labs(title="Figure 3: 4 Countries Mortality Rate (Men)") +
+	xlab("Year") +
+	ylab("Mortality Rate (Men)")
 ```
 
 \newpage
 
+# Model
+
+Mortality rates are not dependant across years. That is to say that mortality rate is not a time-series value which appears of the form $\text{MR}_n = \text{MR}_{n-m} + \varepsilon$, for any $n$ and $m \in \mathbb{N}$. However, many of the causes of mortality rate *are* time-series values. For example, poverty rates. Being in poverty one year is a direct cause of your chances of being in poverty the next year. So, the causality looks as such: $\text{MR}_{n} \leftarrow \text{PHCR}_{n} \leftarrow \text{PHCR}_{n-1} \rightarrow \text{MR}_{n-1}$. Conditioning on $\text{PHCR}_{n-1}$ would not give any benefit to the model, and including the time-series value of $\text{MR}_{n-1}$ would be flawed reasoning.
+
+Different brackets of PHCR may have different effects and so are included.
+
+Health expenditure by percent of GDP is included as a control variable representing health coverage of the populace (included as the variable \`HEA\`). This is imperfect but the world bank database did not include the exact values needed to determine the overall health of the populace of each country over each year.
+
+The final model being: $\text{MR}=\beta_0 + \beta_1 \text{PHCR.6.85} + \beta_2 \text{PHCR.3.65} + \beta_3 \text{PHCR.2.15} + \beta_4 \text{HEA} + \varepsilon$
+
+This is for infant mortality rate, under-5 mortality rate, adult women mortality rate, and adult men mortality rate.
+
 ```{r, results="asis"}
-stargazer(MODEL.B1, MODEL.B2, MODEL.B3, type="latex", header=FALSE)
+stargazer(MODEL.D1, MODEL.D2, MODEL.D3, MODEL.D4, type="latex", header=FALSE)
 ```
 
 \newpage
 
+# Conclusions
 
-```{r, results="asis"}
-stargazer(MODEL.C1, MODEL.C2, MODEL.C3, type="latex", header=FALSE)
-```
+The conclusions of this model appear to, in some cases, align with theory. However almost no coefficient values are significant. Interestingly, HEA is often significant but has a net positive (in the numerical sense) effect on mortality rates. This would imply that mortality is positively correlated (no causality relation for this coefficient is explained in this model, and so the relationship is just correlative) with percent of GDP spent on healthcare. There may be a few explanations for this, and may be an avenue for further research.
+
+The conclusions of other research in the space are less ambiguous, showing that poverty rates do have a positive impact on mortality rates. However, these studies also find that measures of absolute poverty rates do not often have correlation with mortality. The conclusion of this paper gives credence to that idea.
 
 \newpage
 
-```{r, results="asis"}
-stargazer(MODEL.D1, MODEL.D2, MODEL.D3, type="latex", header=FALSE)
-```
+# Citations
+
+1. Fritzell J, Kangas O, Bacchus Hertzman J, Blomgren J, Hiilamo H. *Cross-temporal and cross-national poverty and mortality rates among developed countries*. J Environ Public Health. 2013;2013:915490. doi: 10.1155/2013/915490. Epub 2013 Jun 9. PMID: 23840235; PMCID: PMC3690742.
+2. Fritzell, J., Rehnberg, J., Bacchus Hertzman, J. et al. *Absolute or relative? A comparative analysis of the relationship between poverty and mortality*. Int J Public Health 60, 101–110 (2015). https://doi.org/10.1007/s00038-014-0614-2
+3. World Bank. *World Development Indicators*. The World Bank Group, 2024, https://databank.worldbank.org/reports.aspx?source=World-Development-Indicators
