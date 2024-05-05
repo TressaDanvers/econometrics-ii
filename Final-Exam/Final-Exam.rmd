@@ -1,0 +1,274 @@
+---
+title: "Final Exam"
+output: pdf_document
+header-includes:
+  - \renewcommand{\Relbar}{\mathrel{\mkern-0.5mu=\mkern-0.5mu}}
+  - \newcommand{\sledom}{\Relbar\joinrel\mathrel{|}}
+---
+
+# 1.
+
+## 1.1.
+Expectation:
+
+$$
+E\left(X_{T+1}\mid\left\{X_t\right\}_{t=1}^{T}\right) =
+E\left(0.2 \cdot X_{T} + \eta_{T+1}\right) =
+0.2 \cdot E\left(X_{T}\right) + E\left(\eta_{T+1}\right)
+$$
+
+Some observations:
+
+- $X_{T}$ is in our time series, so it is not a random variable but rather a value. The expectation of a value is itself.
+- $\eta_{T+1}$ is taken from a normal distribution with a mean of 0, so we expect it to be 0 within some variance.
+
+$$
+E\left(X_{T+1}\mid\dots\right) = 0.2 \cdot E\left(X_{T}\right) + E\left(\eta_{T+1}\right) = 0.2 \cdot X_{T}
+$$
+
+## 1.2.
+Constructing a $95\%$ confidence interval around the point at $X_{T+1}$:
+
+$$
+\mathrm{CI}_{1} \Leftrightarrow E\left(X_{T+1}\mid\dots\right) \pm 95\% \cdot \sqrt{\frac{V\left(X_{T+1}\right)}{T+1}}
+$$$$
+V\left(X_{T+1}\mid\dots\right) = V\left(0.2 \cdot X_{T} + \eta_{T+1}\right) =
+0.4 \cdot V\left(X_{T}\right) + V\left(\eta_{T+1}\right) + 2 \cdot coV\left(X_{T}, \eta_{T+1}\right)
+$$
+
+Some observations:
+
+- $X_{T}$ is in our time series, so it is not a random variable but rather a value. The variance of a value is 0.
+- $\eta_{T+1}$ is a normal distribution, its variance is a known quantity. It is $\sigma^2$. In this case $0.25^2$.
+- Given the two above, $coV\left(X_{T}, \eta_{T+1}\right) = 0$.
+
+$$
+0.4 \cdot V\left(X_{T}\right) + V\left(\eta_{T+1}\right) + coV\left(X_{T}, \eta_{T+1}\right) =
+0.4 \cdot 0 + 0.25^2 + 2 \cdot 0 = 0.0625
+$$$$
+E\left(X_{T+1}\mid\dots\right) \pm 95\% \cdot \sqrt{\frac{V\left(X_{T+1}\right)}{T+1}} =
+0.2 \cdot X_{T} \pm 95\% \cdot \sqrt{\frac{0.0625}{T+1}} =
+0.2 \cdot X_{T} \pm 95\% \cdot \frac{0.25}{\sqrt{T+1}}
+$$
+
+## 1.3.
+We would need to know the variance of that value $0.2$, which i'll call $\gamma_0$. As it stands we do not need to know that because the assumption we have made is $V\left(\gamma_0\right) \approx 0$ within an acceptable tolerance.
+
+## 1.4.
+Expectation:
+
+$$
+E\left(Y_{T+2}\mid\left\{X_t\right\}_{t=1}^{T},\left\{Y_t\right\}_{t=1}^{T}\right) =
+E\left(0.5 \cdot Y_{T+1} + 0.7 \cdot X_{T+1} + \epsilon_{T+2} - 0.2 \cdot \epsilon_{T+1}\right)
+$$$$
+\dots =
+0.5 \cdot E\left(Y_{T+1}\right) + 0.7 \cdot E\left(X_{T+1}\right) + E\left(\epsilon_{T+2}\right) - 0.2 \cdot E\left(\epsilon_{T+1}\right)
+$$
+
+Some observations:
+
+- $X_{T+1}$ is known.
+- $\epsilon_{T+1}$ and $\epsilon_{T+2}$ are taken from a normal distribution with a mean of 0, so we expect them to be 0 within some variance.
+- $Y_{T+1}$ is a recursive call.
+
+$$
+\dots =
+0.5 \cdot E\left(0.5 \cdot Y_{T} + 0.7 \cdot X_{T} + \epsilon_{T+1} - 0.2 \cdot \epsilon_{T}\right) + 0.14 \cdot X_{T}
+$$$$
+\dots =
+0.25 \cdot E\left(Y_{T}\right) + 0.7 \cdot E\left(X_{T}\right) + E\left(\epsilon_{T+1}\right) - 0.2 \cdot E\left(\epsilon_{T}\right) + 0.14 \cdot X_{T}
+$$
+
+Some more observations:
+
+- $X_{T}$ and $Y_{T}$ are in the time series, and as such are values not random variables. Their expectations are themselves.
+- $\epsilon_{T}$ is taken from a normal distribution with a mean of 0, so we expect it to be 0 within some variance.
+
+$$
+E\left(Y_{T+2}\mid\dots\right) =
+0.25 \cdot Y_{T} + 0.84 \cdot X_{T}
+$$
+
+## 1.5.
+Constructing a $95\%$ confidence interval around the point at $X_{T+1}$:
+$$
+\mathrm{CI}_{2} \Leftrightarrow E\left(Y_{T+2}\mid\dots\right) \pm 95\% \cdot \sqrt{\frac{V\left(Y_{T+2}\right)}{T+2}}
+$$$$
+V\left(Y_{T+2}\mid\dots\right) =
+V\left(0.5 \cdot Y_{T+1} + 0.7 \cdot X_{T+1} + \epsilon_{T+2} - 0.2 \cdot \epsilon_{T+1}\right)
+$$
+
+Some observations:
+
+- All covariances involving one of the error terms are 0, as they are taken from an $iid$ distribution.
+- The variances of the error terms are equal; both equal to $\sigma^2$ of the normal distribution they are taken from. That value is $0.0625$.
+
+$$
+\dots =
+V\left(0.5 \cdot Y_{T+1} + 0.7 \cdot X_{T+1}\right) + V\left(\epsilon_{T+2}\right) - 0.4 \cdot V\left(\epsilon_{T+1}\right)
+$$$$
+\dots =
+V\left(0.5 \cdot Y_{T+1} + 0.7 \cdot X_{T+1}\right) + 0.0375
+$$$$
+\dots =
+V\left(Y_{T+1}\right) + 1.4 \cdot V\left(X_{T+1}\right) + 2 \cdot coV\left(Y_{T+1},X_{T+1}\right) + 0.0375
+$$
+
+Another observation:
+
+- $V\left(Y_{T+1}\right)$ is a recursive call.
+
+$$
+\dots =
+V\left(0.5 \cdot Y_{T} + 0.7 \cdot X_{T} + \epsilon_{T+1} - 0.2 \cdot \epsilon_{T}\right) + 1.4 \cdot V\left(X_{T+1}\right) + 2 \cdot coV\left(Y_{T+1},X_{T+1}\right) + 0.0375
+$$$$
+\dots =
+V\left(Y_{T}\right) + 1.4 V\left(\cdot X_{T}\right) + V\left(\epsilon_{T+1}\right) - 0.4 \cdot V\left(\epsilon_{T}\right) + 1.4 \cdot V\left(X_{T+1}\right) + 2 \cdot coV\left(Y_{T+1},X_{T+1}\right) + 0.0375
+$$$$
+\dots =
+V\left(Y_{T}\right) + 1.4 V\left(\cdot X_{T}\right) + 1.4 \cdot V\left(X_{T+1}\right) + 2 \cdot coV\left(Y_{T+1},X_{T+1}\right) + 0.075
+$$
+
+\newpage
+
+Another observation:
+
+- Both the variances of $Y_{T}$ and $X_{T}$ are 0, as they are values.
+
+$$
+\dots =
+1.4 \cdot V\left(X_{T+1}\right) + 2 \cdot coV\left(Y_{T+1},X_{T+1}\right) + 0.075
+$$
+
+Dealing with the covariance of $Y_{T+1}$ and $X_{T+1}$.
+
+The expression for $Y_t$ includes $X_{t-1}$, but not $X_{t}$. The error terms of $Y_t$ are $iid$ normal, and thus do not include $X_t$. Finally, time cannot run backwards, so neither $Y_{t-1}$ nor $X_{t-1}$ are functions of $X_{t}$. It is safe to say that $coV\left(Y_{T+1},X_{T+1}\right) = 0$.
+
+Finally, the value of $V\left(X_{T+1}\right)$ is known.
+
+$$
+V\left(Y_{T+2}\mid\dots\right) =
+1.4 \cdot 0.0625 + 0.075 =
+0.1625
+$$$$
+\dots =
+E\left(Y_{T+2}\mid\dots\right) \pm 95\% \cdot \sqrt{\frac{0.1625}{T+2}}
+$$$$
+\dots =
+0.25 \cdot Y_{T} + 0.84 \cdot X_{T} \pm 95\% \cdot \sqrt{\frac{0.1625}{T+2}}
+$$
+
+# 2.
+
+```{r, message=FALSE}
+knitr::opts_chunk$set(eval=TRUE, cache=TRUE)
+library(tidyverse)
+library(stargazer)
+library(forecast)
+```
+
+## Data:
+
+```{r}
+DATA <- inner_join(read.csv("data/PCESC96.csv"),
+                   read.csv("data/UNRATE.csv"), by = "DATE") |>
+  mutate(MONTH = DATE |>
+    str_split("-") |>
+    map(as.numeric) |>
+    map(\(date) date[1] * 12 + date[2] - 1) |>
+    unlist()) |>
+  mutate(YEAR = MONTH / 12) |>
+	mutate(DIF_PCESC96 = PCESC96 - PCESC96 |> lag(n=1)) |>
+	mutate(DIF_UNRATE  = UNRATE - UNRATE |> lag(n=1)) |>
+  na.omit()
+```
+
+## Best Model:
+
+I estimated 36 models in total, because it only takes my computer a second-ish to complete those arima models. This choice was one of computational convenience.
+
+The algorithm used for finding the best model given the parameters is as follows:
+```{r, results = "asis"}
+H <- 12
+
+BEST_XMODEL <- NULL
+XFORECAST <- NULL
+
+for (i in 1:6) {
+  for (j in 1:6) {
+    XMODEL <- DATA$DIF_UNRATE |>
+      Arima(order = c(i, 1, j))
+
+    if (BEST_XMODEL |> is.null() || BEST_XMODEL$aic > XMODEL$aic) {
+      BEST_XMODEL <- XMODEL
+
+      XFORECAST <- BEST_XMODEL |>
+      forecast(h = H)
+    }
+
+    remove(XMODEL)
+  }
+}
+
+BEST_MODEL <- NULL
+FORECAST <- NULL
+
+for (i in 1:6) {
+  for (j in 1:6) {
+    MODEL <- DATA$DIF_PCESC96 |>
+      Arima(order = c(i, 1, j), xreg = cbind(
+        lag(DATA$DIF_UNRATE, n = 1)
+      ))
+
+    if (BEST_MODEL |> is.null() || BEST_MODEL$aic > MODEL$aic) {
+      BEST_MODEL <- MODEL
+
+      FORECAST <- MODEL |>
+      forecast(h = H, xreg = XFORECAST$mean |> as.vector())
+    }
+
+    remove(MODEL)
+  }
+  remove(j)
+}
+remove(i)
+```
+
+## The Forecast:
+
+Here is the best model:
+
+```{r, out.width = "75%", fig.align = "center"}
+XFORECAST |> plot()
+```
+
+```{r, out.width = "75%", fig.align = "center"}
+FORECAST |> plot()
+```
+
+I've written a little function to un-difference the predicted values.
+
+(It is named `discrete_integral` as differencing is also known as the \`\`discrete derivative", sometimes as well the derivative is called the \`\`continuous difference")
+
+```{r}
+discrete_integral <- \(c) \(d) {
+  xs <- c
+  for (x in d$x) xs <- c(xs,x + xs |> tail(n=1))
+  for (x in d$mean) xs <- c(xs,x + xs |> tail(n=1))
+  xs
+}
+
+UD_FORECAST <- FORECAST |> discrete_integral(DATA$PCESC96 |> head(n=1))()
+CI_HIGH <- (FORECAST$upper |> tail.matrix(n=1))[,2]
+CI_LOW <- (FORECAST$lower |> tail.matrix(n=1))[,2]
+```
+
+```{r, out.width = "75%", fig.align = "center"}
+UD_FORECAST |> plot(type="l")
+```
+
+The mean prediction at `r H` months is `r UD_FORECAST |> tail(n=1)`.
+
+The AIC of this model is `r BEST_MODEL$aic`.
+
+The confidence interval around this value is: $`r UD_FORECAST |> tail(n=1)` + \left\{`r CI_HIGH`, `r CI_LOW`\right\}$.
